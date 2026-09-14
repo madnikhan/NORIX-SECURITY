@@ -1,36 +1,43 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Norix Security
 
-## Getting Started
+Laravel + Filament platform for **Norix Security**: SEO-ready marketing site, careers with document uploads, candidate status dashboard, and full operations admin.
 
-First, run the development server:
+## Stack
+
+- Laravel 13 + Blade + Tailwind
+- Filament admin (`/admin`)
+- SQLite locally / PostgreSQL on Render
+- Candidate auth guard for application tracking
+
+## Quick start
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+composer install
+cp .env.example .env   # if needed
+php artisan key:generate
+touch database/database.sqlite
+php artisan migrate --seed
+npm install && npm run build
+php artisan serve
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- Website: http://localhost:8000  
+- Admin: http://localhost:8000/admin — `admin@norixsecurity.co.uk` / `admin123`  
+- Candidate login: http://localhost:8000/candidate/login (created on apply)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Demo staff
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| Email | Password | Role |
+|-------|----------|------|
+| admin@norixsecurity.co.uk | admin123 | admin |
+| ops@norixsecurity.co.uk | ops123 | operations |
+| careers@norixsecurity.co.uk | recruit123 | recruiter |
+| finance@norixsecurity.co.uk | finance123 | finance |
 
-## Learn More
+## Deploy (Render)
 
-To learn more about Next.js, take a look at the following resources:
+See `render.yaml`. Connect the GitHub repo to [Render](https://render.com), create the free web service + Postgres, set `APP_URL`, run migrations/seed.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Legacy
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+The previous Next.js/Firebase prototype is archived in `_legacy-next/`.

@@ -1,0 +1,48 @@
+services:
+  - type: web
+    name: norix-security
+    runtime: php
+    plan: free
+    buildCommand: "composer install --no-dev --optimize-autoloader && npm ci && npm run build && php artisan migrate --force"
+    startCommand: "php artisan serve --host 0.0.0.0 --port $PORT"
+    envVars:
+      - key: APP_NAME
+        value: Norix Security
+      - key: APP_ENV
+        value: production
+      - key: APP_DEBUG
+        value: "false"
+      - key: LOG_CHANNEL
+        value: stderr
+      - key: APP_KEY
+        generateValue: true
+      - key: DB_CONNECTION
+        fromDatabase:
+          name: norix-db
+          property: connection
+      - key: DB_HOST
+        fromDatabase:
+          name: norix-db
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: norix-db
+          property: port
+      - key: DB_DATABASE
+        fromDatabase:
+          name: norix-db
+          property: database
+      - key: DB_USERNAME
+        fromDatabase:
+          name: norix-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: norix-db
+          property: password
+
+databases:
+  - name: norix-db
+    plan: free
+    databaseName: norix
+    user: norix

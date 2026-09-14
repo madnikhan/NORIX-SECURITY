@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /candidate
+
+Sitemap: /sitemap.xml
