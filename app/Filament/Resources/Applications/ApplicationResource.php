@@ -2,9 +2,9 @@
 
 namespace App\Filament\Resources\Applications;
 
+use App\Actions\HireApplication;
 use App\Filament\Resources\Applications\Pages\ManageApplications;
 use App\Models\Application;
-use App\Models\Guard;
 use BackedEnum;
 use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
@@ -13,14 +13,16 @@ use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\HtmlString;
 
 class ApplicationResource extends Resource
 {
@@ -45,7 +47,10 @@ class ApplicationResource extends Resource
                 'docs_verified' => 'Documents verified',
                 'rejected' => 'Rejected',
                 'hired' => 'Hired',
-            ])->required(),
+            ])
+                ->disableOptionWhen(fn (string $value): bool => $value === 'hired')
+                ->helperText('Use Hire / Sync to roster to mark a candidate as hired.')
+                ->required(),
             Textarea::make('notes')->columnSpanFull(),
         ]);
     }
@@ -53,6 +58,7 @@ class ApplicationResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->modifyQueryUsing(fn (Builder $query) => $query->with(['candidate', 'rosterGuard']))
             ->columns([
                 TextColumn::make('reference')->searchable(),
                 TextColumn::make('candidate.name')->searchable(),
@@ -62,7 +68,12 @@ class ApplicationResource extends Resource
             ])
             ->defaultSort('created_at', 'desc')
             ->recordActions([
-                EditAction::make(),
+                EditAction::make()
+                    ->after(function (Application $record) {
+                        if ($record->fresh()?->status === 'hired') {
+                            app(HireApplication::class)($record->fresh(), auth()->id());
+                        }
+                    }),
                 Action::make('documents')
                     ->icon(Heroicon::OutlinedDocument)
                     ->modalHeading('Application documents')
@@ -71,38 +82,25 @@ class ApplicationResource extends Resource
                             return e($doc->type).' — '.e($doc->file_name).' ('.$doc->status.')';
                         })->implode('<br>');
 
-                        return new \Illuminate\Support\HtmlString($lines ?: 'No documents.');
+                        return new HtmlString($lines ?: 'No documents.');
                     })
                     ->modalSubmitAction(false),
                 Action::make('hire')
+                    ->label(fn (Application $record) => $record->status === 'hired' ? 'Sync to roster' : 'Hire')
                     ->color('success')
                     ->requiresConfirmation()
-                    ->visible(fn (Application $record) => $record->status !== 'hired')
+                    ->visible(fn (Application $record) => $record->status !== 'hired' || ! $record->hasRosterGuard())
                     ->action(function (Application $record) {
-                        $history = $record->status_history ?? [];
-                        $history[] = [
-                            'status' => 'hired',
-                            'at' => now()->toIso8601String(),
-                            'by' => auth()->id(),
-                        ];
-                        $record->update([
-                            'status' => 'hired',
-                            'status_history' => $history,
-                        ]);
+                        $wasHired = $record->status === 'hired';
 
-                        Guard::query()->updateOrCreate(
-                            ['email' => $record->candidate->email],
-                            [
-                                'full_name' => $record->candidate->name,
-                                'phone' => $record->candidate->phone,
-                                'sia_licence_number' => $record->sia_licence_number ?: 'PENDING',
-                                'sia_expiry' => $record->sia_expiry?->toDateString() ?: now()->addYear()->toDateString(),
-                                'application_id' => $record->id,
-                                'is_active' => true,
-                            ]
-                        );
+                        app(HireApplication::class)($record, auth()->id());
 
-                        Notification::make()->title('Candidate hired and added to guard roster')->success()->send();
+                        Notification::make()
+                            ->title($wasHired
+                                ? 'Candidate synced to guard roster'
+                                : 'Candidate hired and added to guard roster')
+                            ->success()
+                            ->send();
                     }),
                 DeleteAction::make(),
             ])

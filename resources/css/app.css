@@ -6,25 +6,31 @@
 @source '../**/*.js';
 
 @theme {
-  --font-sans: 'DM Sans', ui-sans-serif, system-ui, sans-serif;
+  --font-sans: 'Barlow', ui-sans-serif, system-ui, sans-serif;
   --font-display: 'Fraunces', ui-serif, Georgia, serif;
-  --color-ink: #14201c;
-  --color-ink-deep: #0c1612;
-  --color-muted: #5c6b64;
-  --color-line: #d7ddd8;
-  --color-accent: #c4a35a;
-  --color-accent-deep: #8a6b2b;
-  --color-cream: #f3f1ec;
-  --color-panel: #eef1ef;
+  --color-ink: #e8efe9;
+  --color-ink-deep: #050807;
+  --color-surface: #0d1512;
+  --color-surface-2: #141f1b;
+  --color-muted: #8a9a92;
+  --color-line: #24332d;
+  --color-accent: #e0b34d;
+  --color-accent-deep: #b8892a;
+  --color-signal: #3dd6c6;
+  --color-cream: #0a100e;
+  --color-panel: #111a17;
 }
 
 :root {
-  color-scheme: light;
+  color-scheme: dark;
 }
 
 body {
-  @apply bg-cream text-ink antialiased;
+  @apply bg-ink-deep text-ink antialiased;
   font-family: var(--font-sans);
+  background-image:
+    radial-gradient(ellipse 80% 50% at 50% -20%, rgba(224, 179, 77, 0.08), transparent),
+    linear-gradient(#050807, #050807);
 }
 
 .font-display {
@@ -33,15 +39,60 @@ body {
 
 .hero-surface {
   background:
-    linear-gradient(120deg, rgba(12, 22, 18, 0.9), rgba(26, 47, 39, 0.72)),
-    radial-gradient(circle at 18% 20%, rgba(196, 163, 90, 0.28), transparent 42%),
-    linear-gradient(160deg, #0c1612, #1a2f27);
+    linear-gradient(115deg, rgba(5, 8, 7, 0.94), rgba(13, 21, 18, 0.78)),
+    radial-gradient(circle at 15% 25%, rgba(224, 179, 77, 0.22), transparent 40%),
+    linear-gradient(165deg, #050807, #12201a 55%, #0a1410);
+}
+
+.tactical-grid {
+  background-image:
+    linear-gradient(rgba(224, 179, 77, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(224, 179, 77, 0.04) 1px, transparent 1px);
+  background-size: 48px 48px;
+}
+
+.scan-edge {
+  box-shadow:
+    inset 0 1px 0 rgba(224, 179, 77, 0.25),
+    inset 0 -1px 0 rgba(61, 214, 198, 0.08);
+}
+
+.frame-corners {
+  position: relative;
+}
+
+.frame-corners::before,
+.frame-corners::after {
+  content: '';
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  border-color: var(--color-accent);
+  border-style: solid;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.frame-corners::before {
+  top: 10px;
+  left: 10px;
+  border-width: 2px 0 0 2px;
+}
+
+.frame-corners::after {
+  right: 10px;
+  bottom: 10px;
+  border-width: 0 2px 2px 0;
+}
+
+.section-kicker {
+  @apply text-xs font-semibold uppercase tracking-[0.28em] text-accent;
 }
 
 @keyframes rise-in {
   from {
     opacity: 0;
-    transform: translateY(20px);
+    transform: translateY(22px);
   }
   to {
     opacity: 1;
@@ -55,6 +106,78 @@ body {
   }
   to {
     opacity: 1;
+  }
+}
+
+@keyframes pulse-line {
+  0%,
+  100% {
+    opacity: 0.35;
+  }
+  50% {
+    opacity: 0.9;
+  }
+}
+
+@keyframes ken-burns {
+  0% {
+    transform: scale(1.05) translate(0, 0);
+  }
+  50% {
+    transform: scale(1.12) translate(-1.5%, -1%);
+  }
+  100% {
+    transform: scale(1.05) translate(0, 0);
+  }
+}
+
+@keyframes scan-beam {
+  0% {
+    transform: translateY(-120%);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.55;
+  }
+  90% {
+    opacity: 0.35;
+  }
+  100% {
+    transform: translateY(120%);
+    opacity: 0;
+  }
+}
+
+@keyframes status-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(61, 214, 198, 0.55);
+    opacity: 1;
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(61, 214, 198, 0);
+    opacity: 0.75;
+  }
+}
+
+@keyframes gold-glow {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(224, 179, 77, 0);
+  }
+  50% {
+    box-shadow: 0 0 24px 2px rgba(224, 179, 77, 0.35);
+  }
+}
+
+@keyframes reveal-up {
+  from {
+    opacity: 0;
+    transform: translateY(28px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
@@ -74,27 +197,167 @@ body {
   animation: fade-in 1.1s ease-out both;
 }
 
+.animate-pulse-line {
+  animation: pulse-line 2.8s ease-in-out infinite;
+}
+
+.hero-kenburns {
+  animation: ken-burns 28s ease-in-out infinite;
+  will-change: transform;
+}
+
+.hero-scanbeam {
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    rgba(224, 179, 77, 0.08) 45%,
+    rgba(61, 214, 198, 0.18) 50%,
+    rgba(224, 179, 77, 0.08) 55%,
+    transparent 100%
+  );
+  height: 40%;
+  animation: scan-beam 7s ease-in-out infinite;
+  mix-blend-mode: screen;
+}
+
+.hud-vignette {
+  background: radial-gradient(ellipse at center, transparent 40%, rgba(5, 8, 7, 0.55) 100%);
+}
+
+.status-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 9999px;
+  background: var(--color-signal);
+  animation: status-pulse 2.2s ease-out infinite;
+}
+
+.city-tile:hover {
+  background: linear-gradient(160deg, rgba(224, 179, 77, 0.08), transparent 55%),
+    var(--color-surface-2);
+}
+
+.city-scroll__track {
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-accent) var(--color-surface-2);
+}
+
+.city-scroll__track::-webkit-scrollbar {
+  height: 4px;
+}
+
+.city-scroll__track::-webkit-scrollbar-track {
+  background: var(--color-surface-2);
+}
+
+.city-scroll__track::-webkit-scrollbar-thumb {
+  background: var(--color-accent);
+}
+
+@media (min-width: 1024px) {
+  .city-scroll__track {
+    scroll-snap-type: none;
+  }
+}
+
+.btn-glow:hover {
+  animation: gold-glow 1.4s ease-in-out infinite;
+}
+
+.hud-ticker {
+  min-width: 12rem;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.hud-ticker__track {
+  display: inline-block;
+  position: relative;
+  min-height: 1.25em;
+}
+
+.hud-ticker__item {
+  display: none;
+}
+
+.hud-ticker__item.is-active {
+  display: inline;
+  animation: fade-in 0.45s ease-out both;
+}
+
+.reveal {
+  opacity: 0;
+  transform: translateY(28px);
+  transition:
+    opacity 0.7s ease,
+    transform 0.7s ease;
+  transition-delay: var(--reveal-delay, 0ms);
+}
+
+.reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+html.motion-ok .coverage-hud::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    105deg,
+    transparent 40%,
+    rgba(224, 179, 77, 0.04) 50%,
+    transparent 60%
+  );
+  background-size: 200% 100%;
+  animation: pulse-line 4s ease-in-out infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .animate-rise,
   .animate-rise-delay,
   .animate-rise-delay-2,
-  .animate-fade {
+  .animate-fade,
+  .animate-pulse-line,
+  .hero-kenburns,
+  .hero-scanbeam,
+  .status-dot,
+  .btn-glow:hover,
+  html.motion-ok .coverage-hud::before {
     animation: none;
+  }
+
+  .reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
   }
 }
 
 .btn-primary {
-  @apply inline-flex items-center justify-center rounded-sm bg-accent px-5 py-3 text-sm font-semibold text-ink-deep transition hover:bg-[#d4b56a];
+  @apply inline-flex items-center justify-center rounded-sm bg-accent px-5 py-3 text-sm font-semibold uppercase tracking-wide text-ink-deep transition hover:bg-[#efc66a];
 }
 
 .btn-ghost {
-  @apply inline-flex items-center justify-center rounded-sm border border-white/30 px-5 py-3 text-sm font-medium text-white transition hover:bg-white/10;
+  @apply inline-flex items-center justify-center rounded-sm border border-accent/40 px-5 py-3 text-sm font-medium uppercase tracking-wide text-white transition hover:border-accent hover:bg-accent/10;
 }
 
 .btn-ink {
-  @apply inline-flex items-center justify-center rounded-sm bg-ink px-5 py-3 text-sm font-medium text-white transition hover:bg-black;
+  @apply inline-flex items-center justify-center rounded-sm border border-accent/30 bg-surface-2 px-5 py-3 text-sm font-semibold uppercase tracking-wide text-accent transition hover:border-accent hover:bg-accent hover:text-ink-deep;
 }
 
 .input {
-  @apply w-full rounded-md border border-line bg-white px-3 py-2 text-sm outline-none ring-accent transition focus:ring-2;
+  @apply w-full rounded-sm border border-line bg-surface px-3 py-2.5 text-sm text-ink outline-none ring-accent transition placeholder:text-muted/60 focus:border-accent focus:ring-1;
+}
+
+.nav-link {
+  @apply text-sm uppercase tracking-wider text-white/65 transition hover:text-accent;
+}
+
+.site-header {
+  @apply absolute inset-x-0 top-0 z-40 border-b border-white/5 bg-ink-deep/55 backdrop-blur-md;
 }

@@ -10,8 +10,8 @@ use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
@@ -34,7 +34,12 @@ class IncidentResource extends Resource
                 Select::make('shift_id')
                     ->relationship('shift', 'id'),
                 Select::make('guard_id')
-                    ->relationship('assignedGuard', 'full_name'),
+                    ->relationship(
+                        name: 'assignedGuard',
+                        titleAttribute: 'full_name',
+                        modifyQueryUsing: fn ($query) => $query->where('is_active', true)->orderBy('full_name'),
+                    )
+                    ->searchable(),
                 TextInput::make('title')
                     ->required(),
                 Textarea::make('description')

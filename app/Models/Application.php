@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 #[Fillable([
     'candidate_id',
@@ -41,5 +42,19 @@ class Application extends Model
     public function documents(): HasMany
     {
         return $this->hasMany(ApplicationDocument::class);
+    }
+
+    public function rosterGuard(): HasOne
+    {
+        return $this->hasOne(Guard::class);
+    }
+
+    public function hasRosterGuard(): bool
+    {
+        if ($this->relationLoaded('rosterGuard')) {
+            return $this->rosterGuard !== null;
+        }
+
+        return $this->rosterGuard()->exists();
     }
 }

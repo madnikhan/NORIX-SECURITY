@@ -11,8 +11,8 @@ use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
@@ -33,7 +33,12 @@ class TimesheetResource extends Resource
                     ->relationship('shift', 'id')
                     ->required(),
                 Select::make('guard_id')
-                    ->relationship('assignedGuard', 'full_name')
+                    ->relationship(
+                        name: 'assignedGuard',
+                        titleAttribute: 'full_name',
+                        modifyQueryUsing: fn ($query) => $query->where('is_active', true)->orderBy('full_name'),
+                    )
+                    ->searchable()
                     ->required(),
                 Select::make('site_id')
                     ->relationship('site', 'name')

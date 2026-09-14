@@ -11,7 +11,6 @@ use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
@@ -33,7 +32,12 @@ class ShiftResource extends Resource
                     ->relationship('site', 'name')
                     ->required(),
                 Select::make('guard_id')
-                    ->relationship('assignedGuard', 'full_name')
+                    ->relationship(
+                        name: 'assignedGuard',
+                        titleAttribute: 'full_name',
+                        modifyQueryUsing: fn ($query) => $query->where('is_active', true)->orderBy('full_name'),
+                    )
+                    ->searchable()
                     ->required(),
                 DateTimePicker::make('starts_at')
                     ->required(),

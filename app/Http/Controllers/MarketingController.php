@@ -6,6 +6,7 @@ use App\Models\Lead;
 use App\Models\Policy;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class MarketingController extends Controller
@@ -49,14 +50,23 @@ class MarketingController extends Controller
 
     public function storeContact(Request $request)
     {
+        $cityNames = collect(config('norix.cities'))->pluck('name')->push('Other')->all();
+
         $data = $request->validate([
             'company' => ['required', 'string', 'max:255'],
             'contact_name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255'],
             'phone' => ['nullable', 'string', 'max:50'],
+            'city' => ['required', 'string', 'max:100', Rule::in($cityNames)],
             'service_interest' => ['nullable', 'string', 'max:255'],
             'message' => ['required', 'string', 'max:5000'],
         ]);
+
+        $city = $data['city'];
+        unset($data['city']);
+
+        $data['message'] = "City: {$city}\n\n".$data['message'];
+        $data['status'] = 'new';
 
         Lead::create($data);
 
@@ -69,6 +79,10 @@ class MarketingController extends Controller
             ->map(fn ($s) => '- '.$s['title'].': '.$s['summary'])
             ->implode("\n");
 
+        $cities = collect(config('norix.cities'))
+            ->map(fn ($c) => '- '.$c['name'].' ('.$c['region'].')')
+            ->implode("\n");
+
         $body = implode("\n", [
             '# '.config('norix.name'),
             '',
@@ -78,6 +92,9 @@ class MarketingController extends Controller
             'Email: '.config('norix.email'),
             'Phone: '.config('norix.phone'),
             'Address: '.config('norix.address'),
+            '',
+            '## Coverage cities (England)',
+            $cities,
             '',
             '## Services',
             $services,
