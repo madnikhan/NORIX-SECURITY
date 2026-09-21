@@ -29,7 +29,7 @@
             </div>
             <label class="text-sm"><span class="mb-1.5 block font-medium text-ink/90">Right to work share code</span><input class="input" name="right_to_work_share_code" value="{{ old('right_to_work_share_code') }}"></label>
             <hr class="border-line">
-            <p class="text-sm text-muted">Upload clear scans or photos (PDF/JPG/PNG, max 10MB each).</p>
+            <p class="text-sm text-muted">Upload clear scans or photos (PDF/JPG/PNG, max 10MB each). Keep the full form under 60MB.</p>
             <label class="text-sm"><span class="mb-1.5 block font-medium text-ink/90">Passport *</span><input class="input" type="file" name="passport" accept=".pdf,image/*" required></label>
             <label class="text-sm"><span class="mb-1.5 block font-medium text-ink/90">SIA licence *</span><input class="input" type="file" name="sia_licence" accept=".pdf,image/*" required></label>
             <label class="text-sm"><span class="mb-1.5 block font-medium text-ink/90">Right to work share code evidence *</span><input class="input" type="file" name="right_to_work_share_code_file" accept=".pdf,image/*" required></label>
