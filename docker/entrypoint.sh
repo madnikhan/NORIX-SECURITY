@@ -15,6 +15,21 @@ mkdir -p storage/framework/{cache,sessions,views} storage/logs bootstrap/cache
 chown -R www-data:www-data storage bootstrap/cache || true
 chmod -R ug+rwx storage bootstrap/cache || true
 
+# Laravel expects APP_KEY like "base64:....". Render generateValue is often a raw secret.
+if [[ -z "${APP_KEY:-}" || "${APP_KEY}" != base64:* ]]; then
+  export APP_KEY="$(php -r 'echo "base64:".base64_encode(random_bytes(32));')"
+  echo "Generated a valid Laravel APP_KEY for this boot."
+fi
+
+# Prefer Laravel's DB_URL; Render provides DATABASE_URL.
+if [[ -z "${DB_URL:-}" && -n "${DATABASE_URL:-}" ]]; then
+  export DB_URL="${DATABASE_URL}"
+  echo "Mapped DATABASE_URL -> DB_URL"
+fi
+
+# Render Postgres expects SSL.
+export DB_SSLMODE="${DB_SSLMODE:-require}"
+
 echo "Discovering packages..."
 php artisan package:discover --ansi || true
 
@@ -31,6 +46,10 @@ php artisan migrate --force
 
 echo "Linking storage..."
 php artisan storage:link || true
+
+if [[ ! -f public/build/manifest.json ]]; then
+  echo "WARNING: public/build/manifest.json missing — CSS/JS may be broken."
+fi
 
 echo "Starting Apache on port ${PORT}..."
 exec docker-php-entrypoint "$@"
