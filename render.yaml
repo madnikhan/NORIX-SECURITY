@@ -14,7 +14,7 @@ services:
       - key: APP_DEBUG
         value: "false"
       - key: APP_URL
-        sync: false
+        value: https://norix-security.onrender.com
       - key: LOG_CHANNEL
         value: stderr
       - key: LOG_LEVEL

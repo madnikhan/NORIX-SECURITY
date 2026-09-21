@@ -12,6 +12,10 @@
 /public/storage
 /storage/*.key
 /storage/pail
+/storage/logs/*
+/storage/framework/cache/data/*
+/storage/framework/sessions/*
+/storage/framework/views/*
 /.env
 /.env.*
 !.env.example
@@ -23,3 +27,5 @@ yarn-error.log
 auth.json
 *.log
 .DS_Store
+/tests
+/phpunit.xml
