@@ -11,6 +11,19 @@ if grep -q "<VirtualHost" /etc/apache2/sites-available/000-default.conf; then
   sed -i "s/<VirtualHost \*:.*>/<VirtualHost *:${PORT}>/" /etc/apache2/sites-available/000-default.conf
 fi
 
+# Stop Apache from advertising the internal Render port in redirects.
+cp /var/www/html/docker/apache-render.conf /etc/apache2/conf-available/render-proxy.conf
+a2enconf render-proxy >/dev/null
+
+# Prefer public hostname from APP_URL so generated redirects stay clean.
+if [[ -n "${APP_URL:-}" ]]; then
+  HOST_NAME="$(php -r 'echo parse_url(getenv("APP_URL"), PHP_URL_HOST) ?: "";')"
+  if [[ -n "${HOST_NAME}" ]]; then
+    sed -i '/^ServerName /d' /etc/apache2/sites-available/000-default.conf
+    sed -i "/<VirtualHost/a\\  ServerName ${HOST_NAME}" /etc/apache2/sites-available/000-default.conf
+  fi
+fi
+
 mkdir -p storage/framework/{cache,sessions,views} storage/logs bootstrap/cache
 chown -R www-data:www-data storage bootstrap/cache || true
 chmod -R ug+rwx storage bootstrap/cache || true
@@ -36,9 +49,8 @@ php artisan package:discover --ansi || true
 echo "Publishing Filament assets..."
 php artisan filament:assets --ansi || true
 
-echo "Caching Laravel..."
+echo "Caching config/views (skip route:cache — unsafe with Filament live routes)..."
 php artisan config:cache
-php artisan route:cache
 php artisan view:cache
 
 echo "Running migrations..."
