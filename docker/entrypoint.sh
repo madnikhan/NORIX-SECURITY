@@ -44,6 +44,12 @@ php artisan view:cache
 echo "Running migrations..."
 php artisan migrate --force
 
+echo "Seeding database (safe to re-run)..."
+php artisan db:seed --force
+
+echo "Syncing hired applications to guard roster..."
+php artisan norix:sync-hired-guards || true
+
 echo "Linking storage..."
 php artisan storage:link || true
 
