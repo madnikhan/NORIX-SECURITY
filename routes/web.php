@@ -5,6 +5,8 @@ use App\Http\Controllers\CareerController;
 use App\Http\Controllers\MarketingController;
 use Illuminate\Support\Facades\Route;
 
+Route::redirect('/login', '/admin/login');
+
 Route::get('/', [MarketingController::class, 'home'])->name('home');
 Route::get('/about', [MarketingController::class, 'about'])->name('about');
 Route::get('/services', [MarketingController::class, 'services'])->name('services');
