@@ -70,4 +70,13 @@ if [[ ! -f public/build/manifest.json ]]; then
 fi
 
 echo "Starting Apache on port ${PORT}..."
+
+# Lightweight scheduler for shift reminders / SIA alerts (single-container Render).
+(
+  while true; do
+    php artisan schedule:run --no-interaction >/dev/null 2>&1 || true
+    sleep 60
+  done
+) &
+
 exec docker-php-entrypoint "$@"
