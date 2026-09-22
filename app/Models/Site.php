@@ -8,13 +8,27 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-#[Fillable(['client_id', 'name', 'address', 'requirements', 'is_active'])]
+#[Fillable([
+    'client_id',
+    'name',
+    'address',
+    'latitude',
+    'longitude',
+    'geofence_radius_meters',
+    'geocoded_at',
+    'requirements',
+    'is_active',
+])]
 class Site extends Model
 {
     protected function casts(): array
     {
         return [
             'is_active' => 'boolean',
+            'latitude' => 'decimal:7',
+            'longitude' => 'decimal:7',
+            'geofence_radius_meters' => 'integer',
+            'geocoded_at' => 'datetime',
         ];
     }
 
@@ -31,5 +45,10 @@ class Site extends Model
     public function shifts(): HasMany
     {
         return $this->hasMany(Shift::class);
+    }
+
+    public function hasCoordinates(): bool
+    {
+        return $this->latitude !== null && $this->longitude !== null;
     }
 }

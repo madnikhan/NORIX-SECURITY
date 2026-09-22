@@ -1,0 +1,14 @@
+{
+  "name": "Norix Staff",
+  "short_name": "Norix Staff",
+  "description": "Shift schedule, clock in/out, and hours for Norix Security officers",
+  "start_url": "/staff",
+  "scope": "/staff",
+  "display": "standalone",
+  "background_color": "#050807",
+  "theme_color": "#050807",
+  "icons": [
+    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}

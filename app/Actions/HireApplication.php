@@ -9,9 +9,11 @@ use RuntimeException;
 
 class HireApplication
 {
-    public function __invoke(Application $application, ?int $actorId = null): Guard
+    public function __construct(private InviteStaffGuard $inviteStaffGuard) {}
+
+    public function __invoke(Application $application, ?int $actorId = null, bool $sendInvite = true): Guard
     {
-        return DB::transaction(function () use ($application, $actorId) {
+        $guard = DB::transaction(function () use ($application, $actorId) {
             $application->loadMissing('candidate');
 
             $candidate = $application->candidate;
@@ -46,6 +48,8 @@ class HireApplication
                 'status_history' => $history,
             ]);
 
+            $existing = Guard::query()->where('email', $candidate->email)->first();
+
             return Guard::query()->updateOrCreate(
                 ['email' => $candidate->email],
                 [
@@ -55,8 +59,15 @@ class HireApplication
                     'sia_expiry' => $application->sia_expiry?->toDateString() ?: now()->addYear()->toDateString(),
                     'application_id' => $application->id,
                     'is_active' => true,
+                    'must_set_password' => $existing === null || blank($existing->getAttributes()['password'] ?? null),
                 ]
             );
         });
+
+        if ($sendInvite && ($guard->password === null || $guard->must_set_password)) {
+            ($this->inviteStaffGuard)($guard);
+        }
+
+        return $guard->fresh();
     }
 }

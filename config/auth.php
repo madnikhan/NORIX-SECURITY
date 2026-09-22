@@ -1,5 +1,7 @@
 <?php
 
+use App\Models\Candidate;
+use App\Models\Guard;
 use App\Models\User;
 
 return [
@@ -46,6 +48,10 @@ return [
             'driver' => 'session',
             'provider' => 'candidates',
         ],
+        'staff' => [
+            'driver' => 'session',
+            'provider' => 'guards',
+        ],
     ],
 
     /*
@@ -72,7 +78,11 @@ return [
         ],
         'candidates' => [
             'driver' => 'eloquent',
-            'model' => App\Models\Candidate::class,
+            'model' => Candidate::class,
+        ],
+        'guards' => [
+            'driver' => 'eloquent',
+            'model' => Guard::class,
         ],
     ],
 
@@ -98,6 +108,12 @@ return [
     'passwords' => [
         'users' => [
             'provider' => 'users',
+            'table' => env('AUTH_PASSWORD_RESET_TOKEN_TABLE', 'password_reset_tokens'),
+            'expire' => 60,
+            'throttle' => 60,
+        ],
+        'guards' => [
+            'provider' => 'guards',
             'table' => env('AUTH_PASSWORD_RESET_TOKEN_TABLE', 'password_reset_tokens'),
             'expire' => 60,
             'throttle' => 60,

@@ -17,6 +17,7 @@ use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class ShiftResource extends Resource
 {
@@ -57,6 +58,7 @@ class ShiftResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->modifyQueryUsing(fn (Builder $query) => $query->with(['clockInPunch', 'clockOutPunch']))
             ->columns([
                 TextColumn::make('site.name')
                     ->searchable(),
@@ -71,6 +73,20 @@ class ShiftResource extends Resource
                     ->sortable(),
                 TextColumn::make('status')
                     ->searchable(),
+                TextColumn::make('attendance')
+                    ->label('Attendance')
+                    ->state(function (Shift $record): string {
+                        $in = $record->clockInPunch?->punched_at?->format('H:i');
+                        $out = $record->clockOutPunch?->punched_at?->format('H:i');
+                        if ($in && $out) {
+                            return "In {$in} / Out {$out}";
+                        }
+                        if ($in) {
+                            return "On site since {$in}";
+                        }
+
+                        return '—';
+                    }),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()

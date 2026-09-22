@@ -13,6 +13,18 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->trustProxies(at: '*');
+
+        $middleware->redirectGuestsTo(function (Request $request): string {
+            if ($request->is('staff') || $request->is('staff/*')) {
+                return route('staff.login');
+            }
+
+            if ($request->is('candidate') || $request->is('candidate/*')) {
+                return route('candidate.login');
+            }
+
+            return '/admin/login';
+        });
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(

@@ -71,7 +71,9 @@
                     <a href="{{ route('services') }}" class="hover:text-accent">Services</a>
                     <a href="{{ route('careers.index') }}" class="hover:text-accent">Careers</a>
                     <a href="{{ route('contact') }}" class="hover:text-accent">Request a quote</a>
-                    <a href="{{ url('/admin') }}" class="hover:text-accent">Staff portal</a>
+                    <a href="{{ route('candidate.login') }}" class="hover:text-accent">Candidate portal</a>
+                    <a href="{{ route('staff.login') }}" class="hover:text-accent">Staff app</a>
+                    <a href="{{ url('/admin') }}" class="hover:text-accent">Admin</a>
                 </div>
             </div>
         </div>
